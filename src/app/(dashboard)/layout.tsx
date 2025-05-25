@@ -24,7 +24,7 @@ import {
   LineChart,
   Wand2,
   Settings,
-  ScanBarcode, // Added ScanBarcode
+  ScanBarcode,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAppTranslation } from "@/hooks/useAppTranslation";
@@ -34,14 +34,14 @@ import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 
 interface NavItem {
   href: string;
-  labelKey: string; // Changed to use translation key
+  labelKey: string;
   icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [
   { href: "/", labelKey: "dashboard", icon: LayoutDashboard },
   { href: "/inventory", labelKey: "inventory", icon: Boxes },
-  { href: "/quick-invoice", labelKey: "quickInvoiceBarcode", icon: ScanBarcode }, // Added Quick Invoice
+  { href: "/quick-invoice", labelKey: "quickInvoiceBarcode", icon: ScanBarcode },
   { href: "/sales", labelKey: "sales", icon: ShoppingCart },
   { href: "/suppliers", labelKey: "suppliers", icon: Users },
   { href: "/reports", labelKey: "reports", icon: LineChart },
@@ -58,7 +58,30 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider defaultOpen>
-      <Sidebar>
+      {/* Content first, then Sidebar for right-to-left layout */}
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md sm:h-16 sm:px-6">
+          <div className="flex items-center gap-2 md:hidden"> {/* For mobile view, sidebar trigger and logo can be on the left or right based on dir */}
+            <SidebarTrigger/>
+            <Link href="/" className="flex items-center gap-2">
+              <Activity className="h-6 w-6 text-primary" />
+              <span className="font-semibold">{t('pharmaEase')}</span>
+            </Link>
+          </div>
+          <div className="flex-1 md:hidden"> {/* Spacer for mobile view */}
+          </div>
+          <div className="hidden md:flex md:flex-1"> {/* Sidebar trigger for desktop, will be on the left of header items */}
+             <SidebarTrigger />
+          </div>
+          <div className="flex items-center gap-2">
+            <CurrencySwitcher />
+            <ThemeSwitcher />
+            <LanguageSwitcher />
+          </div>
+        </header>
+        <main className="flex-1 p-4 sm:p-6">{children}</main>
+      </SidebarInset>
+      <Sidebar side="right" collapsible="icon"> {/* Set side to right */}
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
             <Activity className="h-8 w-8 text-primary" />
@@ -73,7 +96,7 @@ export default function DashboardLayout({
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))}
-                    tooltip={{ children: t(item.labelKey), side: locale === 'ar' ? "left" : "right", align: "center" }}
+                    tooltip={{ children: t(item.labelKey), side: "left", align: "center" }} // Tooltip to the left for RTL
                   >
                     <a>
                       <item.icon />
@@ -93,23 +116,6 @@ export default function DashboardLayout({
           </Button>
         </SidebarFooter> */}
       </Sidebar>
-      <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md sm:h-16 sm:px-6">
-          <div className="flex-1">
-            <SidebarTrigger className="md:hidden" />
-          </div>
-           <Link href="/" className="flex items-center gap-2 md:hidden">
-            <Activity className="h-6 w-6 text-primary" />
-            <span className="font-semibold">{t('pharmaEase')}</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <CurrencySwitcher />
-            <ThemeSwitcher />
-            <LanguageSwitcher />
-          </div>
-        </header>
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
-      </SidebarInset>
     </SidebarProvider>
   );
 }
