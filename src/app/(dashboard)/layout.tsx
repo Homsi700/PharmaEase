@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import * as React from "react"; // Added import for React
 import { Button } from "@/components/ui/button";
 import {
   Activity,
@@ -36,16 +37,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/contexts/ThemeContext";
+// Removed useTheme import as it's not directly used here, ThemeSwitcher handles its own context.
 
 interface NavItem {
   href: string;
   labelKey: string;
-  icon?: LucideIcon; // Optional for now, as we are using text links in top nav
+  icon?: LucideIcon; 
 }
 
 const mainNavItems: NavItem[] = [
-  { href: "/inventory", labelKey: "inventoryManagement", icon: Boxes }, // Kept icon for potential future use in mobile menu
+  { href: "/inventory", labelKey: "inventory", icon: Boxes }, 
   { href: "/quick-invoice", labelKey: "quickInvoiceBarcode", icon: ScanBarcode },
   { href: "/sales", labelKey: "sales", icon: ShoppingCart },
   { href: "/suppliers", labelKey: "suppliers", icon: Users },
