@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { CurrencyProvider } from '@/contexts/CurrencyContext';
+import { cn } from '@/lib/utils';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,15 +27,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Initial lang and dir are set here for SSR.
+  // LanguageProvider's useEffect will update these on the client-side based on stored preferences or user interaction.
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <CurrencyProvider>
-          {/* The LanguageProvider will set lang and dir on the html tag */}
-          {children}
-          <Toaster />
-        </CurrencyProvider>
-      </ThemeProvider>
-    </LanguageProvider>
+    <html lang="ar" dir="rtl">
+      <body className={cn(geistSans.variable, geistMono.variable, "font-sans")}>
+        <LanguageProvider>
+          <ThemeProvider>
+            <CurrencyProvider>
+              {children}
+              <Toaster />
+            </CurrencyProvider>
+          </ThemeProvider>
+        </LanguageProvider>
+      </body>
+    </html>
   );
 }

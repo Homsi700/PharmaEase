@@ -28,6 +28,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (storedLocale) {
       setLocaleState(storedLocale);
     }
+    // Set initial lang/dir based on state after checking localStorage
+    // This ensures the document element is updated once the initial locale is determined
+    document.documentElement.lang = storedLocale || 'ar';
+    document.documentElement.dir = (storedLocale || 'ar') === 'ar' ? 'rtl' : 'ltr';
   }, []);
 
   useEffect(() => {
@@ -48,18 +52,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translation;
   };
   
-  // Special case for the RootLayout where html tag needs to be rendered by the provider itself
-  if (typeof window === 'undefined') { // Server-side rendering
-    return (
-        <html lang="ar" dir="rtl">
-          <LanguageContext.Provider value={{ locale, setLocale, t }}>
-            {children}
-          </LanguageContext.Provider>
-        </html>
-    );
-  }
-  
-  // Client-side: directly return children wrapped in provider after useEffect sets lang/dir
   return (
     <LanguageContext.Provider value={{ locale, setLocale, t }}>
       {children}
