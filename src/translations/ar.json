@@ -139,7 +139,17 @@
   "saleCompleted": "اكتمل البيع",
   "invoiceNumber": "رقم الفاتورة",
   "failedToCompleteSale": "فشل إتمام البيع.",
-  "loading": "جاري التحميل..."
+  "loading": "جاري التحميل...",
+  "loginToPharmaEase": "تسجيل الدخول إلى صيدليتي",
+  "loginPageDescription": "أدخل بياناتك للوصول إلى لوحة التحكم الخاصة بك.",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "rememberMe": "تذكرني",
+  "forgotPassword": "نسيت كلمة المرور؟",
+  "signIn": "تسجيل الدخول",
+  "noAccountYet": "ليس لديك حساب بعد؟",
+  "contactSupport": "اتصل بالدعم",
+  "allRightsReserved": "جميع الحقوق محفوظة.",
+  "loginAttemptMessage": "وظيفة تسجيل الدخول لم تنفذ بعد."
 }
-
     
