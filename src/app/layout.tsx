@@ -1,7 +1,10 @@
-import type {Metadata} from 'next';
-import {Geist, Geist_Mono} from 'next/font/google';
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { CurrencyProvider } from '@/contexts/CurrencyContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -14,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'PharmaEase',
-  description: 'Modern Pharmacy Management System',
+  title: 'PharmaEase | صيدليتي',
+  description: 'Modern Pharmacy Management System | نظام إدارة صيدلية حديث',
 };
 
 export default function RootLayout({
@@ -24,11 +27,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
-        <Toaster />
-      </body>
-    </html>
+    <LanguageProvider>
+      <ThemeProvider>
+        <CurrencyProvider>
+          {/* The LanguageProvider will set lang and dir on the html tag */}
+          {children}
+          <Toaster />
+        </CurrencyProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }

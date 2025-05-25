@@ -1,9 +1,9 @@
 
-import { ProductForm } from '@/components/inventory/product-form';
-import { PageHeader } from '@/components/page-header';
 import { getProductById, getSuppliers } from '@/lib/data-service';
 import type { Product, Supplier } from '@/types';
 import { notFound } from 'next/navigation';
+import { TranslationsWrapper } from '@/components/translations-wrapper';
+import { EditProductPageContent } from './edit-product-page-content';
 
 interface EditProductPageProps {
   params: { id: string };
@@ -18,9 +18,8 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   }
 
   return (
-    <>
-      <PageHeader title="Edit Product" description={`Update the details for ${product.name}.`} />
-      <ProductForm product={product} suppliers={suppliers} />
-    </>
+    <TranslationsWrapper>
+      <EditProductPageContent product={product} suppliers={suppliers} />
+    </TranslationsWrapper>
   );
 }

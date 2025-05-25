@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -9,12 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Loader2, Wand2 } from 'lucide-react';
 import { generateSuggestedOrder, type GenerateSuggestedOrderInput, type GenerateSuggestedOrderOutput } from '@/ai/flows/ai-driven-stock-ordering';
 import { useToast } from "@/hooks/use-toast";
-import { getProducts, getSales } from '@/lib/data-service'; // For pre-filling data
+import { getProducts, getSales } from '@/lib/data-service'; 
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
-// Helper to get current date in YYYY-MM-DD format
 const getCurrentDate = () => new Date().toISOString().split('T')[0];
 
-// Example structure for pre-filling, adapt as needed
 const exampleSalesData = JSON.stringify([
   { productId: "example-id-1", quantitySold: 10, dateOfSale: getCurrentDate() },
   { productId: "example-id-2", quantitySold: 5, dateOfSale: getCurrentDate() }
@@ -32,6 +32,7 @@ const exampleExpirationDates = JSON.stringify([
 
 
 export default function SmartOrderPage() {
+  const { t } = useAppTranslation();
   const [salesData, setSalesData] = useState('');
   const [stockLevels, setStockLevels] = useState('');
   const [expirationDates, setExpirationDates] = useState('');
@@ -46,7 +47,6 @@ export default function SmartOrderPage() {
     const stock = currentProducts.map(p => ({ productId: p.id, name: p.name, quantityInStock: p.quantityInStock }));
     const expirations = currentProducts.map(p => ({ productId: p.id, name: p.name, expiryDate: p.expiryDate }));
     
-    // Basic sales transformation - needs more robust aggregation for real use
     const sales = currentSales.flatMap(s => s.items.map(item => ({
       productId: item.productId,
       quantitySold: item.quantitySold,
@@ -57,13 +57,13 @@ export default function SmartOrderPage() {
     setStockLevels(stock.length > 0 ? JSON.stringify(stock, null, 2) : exampleStockLevels);
     setExpirationDates(expirations.length > 0 ? JSON.stringify(expirations, null, 2) : exampleExpirationDates);
 
-    toast({ title: "Data Prefilled", description: "Input fields have been prefilled with current data / examples." });
+    toast({ title: t("dataPrefilled"), description: t("dataPrefilledDescription") });
   };
 
 
   const handleSubmit = async () => {
     if (!salesData || !stockLevels || !expirationDates) {
-      toast({ variant: "destructive", title: "Missing Data", description: "Please provide all required data." });
+      toast({ variant: "destructive", title: t("missingData"), description: t("missingDataDescription") });
       return;
     }
 
@@ -78,11 +78,11 @@ export default function SmartOrderPage() {
       };
       const result = await generateSuggestedOrder(input);
       setSuggestedOrder(result);
-      toast({ title: "Suggestion Generated", description: "AI has generated a new stock order suggestion." });
+      toast({ title: t("suggestionGenerated"), description: t("suggestionGeneratedDescription") });
     } catch (error) {
       console.error("Error generating suggested order:", error);
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-      toast({ variant: "destructive", title: "Error", description: `Failed to generate suggestion: ${errorMessage}` });
+      toast({ variant: "destructive", title: t("error"), description: t("errorGeneratingSuggestion", {errorMessage}) });
     } finally {
       setIsLoading(false);
     }
@@ -90,22 +90,22 @@ export default function SmartOrderPage() {
 
   return (
     <>
-      <PageHeader title="AI-Driven Stock Ordering" description="Leverage AI to get smart suggestions for your next stock order." />
+      <PageHeader titleKey="aiStockOrdering" descriptionKey="aiStockOrderingDescription" />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Input Data</CardTitle>
-            <CardDescription>Provide sales, stock, and expiration data in JSON format.</CardDescription>
+            <CardTitle>{t('inputData')}</CardTitle>
+            <CardDescription>{t('inputDataDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <Button onClick={handlePrefillData} variant="outline" size="sm" className="mb-2">
-                Prefill with Current Data / Examples
+                {t('prefillData')}
               </Button>
             </div>
             <div>
-              <Label htmlFor="salesData">Sales Data (JSON)</Label>
+              <Label htmlFor="salesData">{t('salesDataJson')}</Label>
               <Textarea 
                 id="salesData" 
                 value={salesData} 
@@ -115,7 +115,7 @@ export default function SmartOrderPage() {
               />
             </div>
             <div>
-              <Label htmlFor="stockLevels">Current Stock Levels (JSON)</Label>
+              <Label htmlFor="stockLevels">{t('stockLevelsJson')}</Label>
               <Textarea 
                 id="stockLevels" 
                 value={stockLevels} 
@@ -125,7 +125,7 @@ export default function SmartOrderPage() {
               />
             </div>
             <div>
-              <Label htmlFor="expirationDates">Expiration Dates (JSON)</Label>
+              <Label htmlFor="expirationDates">{t('expirationDatesJson')}</Label>
               <Textarea 
                 id="expirationDates" 
                 value={expirationDates} 
@@ -142,40 +142,40 @@ export default function SmartOrderPage() {
               ) : (
                 <Wand2 className="mr-2 h-4 w-4" />
               )}
-              Generate Suggestion
+              {t('generateSuggestion')}
             </Button>
           </CardFooter>
         </Card>
 
         <Card className="lg:sticky lg:top-6 self-start">
           <CardHeader>
-            <CardTitle>Suggested Order</CardTitle>
-            <CardDescription>AI-generated stock order suggestion based on your input.</CardDescription>
+            <CardTitle>{t('suggestedOrder')}</CardTitle>
+            <CardDescription>{t('suggestedOrderDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading && (
               <div className="flex flex-col items-center justify-center h-40">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="mt-2 text-muted-foreground">Generating suggestion...</p>
+                <p className="mt-2 text-muted-foreground">{t('generatingSuggestion')}</p>
               </div>
             )}
             {suggestedOrder && !isLoading && (
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-lg mb-1">Suggested Order Items:</h3>
+                  <h3 className="font-semibold text-lg mb-1">{t('suggestedOrderItems')}</h3>
                   <pre className="bg-muted p-3 rounded-md text-sm overflow-x-auto">
                     {JSON.stringify(JSON.parse(suggestedOrder.suggestedOrder), null, 2)}
                   </pre>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-1">Reasoning:</h3>
+                  <h3 className="font-semibold text-lg mb-1">{t('reasoning')}</h3>
                   <p className="text-sm bg-muted p-3 rounded-md whitespace-pre-wrap">{suggestedOrder.reasoning}</p>
                 </div>
               </div>
             )}
             {!suggestedOrder && !isLoading && (
               <p className="text-muted-foreground text-center py-10">
-                Enter data and click "Generate Suggestion" to see results here.
+                {t('enterDataPrompt')}
               </p>
             )}
           </CardContent>

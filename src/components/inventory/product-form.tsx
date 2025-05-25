@@ -25,22 +25,9 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { addProductAction, updateProductAction } from '@/app/(dashboard)/inventory/actions';
-
-const productSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  barcode: z.string().min(1, "Barcode is required"),
-  description: z.string().optional(),
-  category: z.string().optional(),
-  supplierId: z.string().optional(),
-  purchasePrice: z.coerce.number().min(0, "Purchase price must be non-negative"),
-  sellingPrice: z.coerce.number().min(0, "Selling price must be non-negative"),
-  unit: z.string().min(1, "Unit is required"),
-  quantityInStock: z.coerce.number().int().min(0, "Quantity must be a non-negative integer"),
-  expiryDate: z.date({ required_error: "Expiry date is required." }),
-  lowStockThreshold: z.coerce.number().int().min(0, "Low stock threshold must be non-negative").optional(),
-});
-
-type ProductFormData = z.infer<typeof productSchema>;
+import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { arSA, enUS } from 'date-fns/locale'; // For calendar localization
 
 interface ProductFormProps {
   product?: Product;
@@ -50,6 +37,25 @@ interface ProductFormProps {
 export function ProductForm({ product, suppliers }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t, locale } = useAppTranslation();
+  const { currency } = useCurrency(); // only to potentially display currency symbols if needed, actual value is SYP
+
+  const productSchema = z.object({
+    name: z.string().min(1, t("productNameRequired")),
+    barcode: z.string().min(1, t("barcodeRequired")),
+    description: z.string().optional(),
+    category: z.string().optional(),
+    supplierId: z.string().optional(),
+    purchasePrice: z.coerce.number().min(0, t("purchasePriceNonNegative")),
+    sellingPrice: z.coerce.number().min(0, t("sellingPriceNonNegative")),
+    unit: z.string().min(1, t("unitRequired")),
+    quantityInStock: z.coerce.number().int().min(0, t("quantityNonNegativeInteger")),
+    expiryDate: z.date({ required_error: t("expiryDateRequired") }),
+    lowStockThreshold: z.coerce.number().int().min(0, t("lowStockThresholdNonNegative")).optional(),
+  });
+  
+  type ProductFormData = z.infer<typeof productSchema>;
+
   const { register, handleSubmit, control, formState: { errors }, setValue, watch } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: product 
@@ -65,7 +71,7 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
           purchasePrice: 0,
           sellingPrice: 0,
           quantityInStock: 0,
-          unit: "unit",
+          unit: "unit", // Default or make it translatable if needed
           expiryDate: new Date(),
           lowStockThreshold: 10,
         },
@@ -78,6 +84,9 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
       ...data,
       id: product?.id || uuidv4(),
       expiryDate: data.expiryDate.toISOString(),
+      // Prices are always stored in SYP
+      purchasePrice: data.purchasePrice,
+      sellingPrice: data.sellingPrice,
       createdAt: product?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -90,42 +99,41 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
     }
 
     if (result.success) {
-      toast({ title: "Success", description: `Product ${product ? 'updated' : 'added'} successfully.` });
+      toast({ title: t("success"), description: t(product ? 'productUpdatedSuccessfully' : 'productAddedSuccessfully') });
       router.push('/inventory');
-      router.refresh(); // Ensures the product table is up-to-date
+      router.refresh(); 
     } else {
-      toast({ variant: "destructive", title: "Error", description: result.error });
+      toast({ variant: "destructive", title: t("error"), description: result.error });
     }
   };
   
-  // Placeholder for barcode scanning logic
   const handleBarcodeScan = () => {
-    // In a real app, this would trigger camera access and barcode scanning.
-    // For now, we can simulate by prompting or using a demo value.
-    const scannedBarcode = prompt("Enter or scan barcode:");
+    const scannedBarcode = prompt(t("scanBarcode")); // Simple prompt, replace with actual scanner
     if (scannedBarcode) {
       setValue("barcode", scannedBarcode);
     }
   };
+  
+  const calendarLocale = locale === 'ar' ? arSA : enUS;
 
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>{product ? 'Edit Product' : 'Add New Product'}</CardTitle>
+        <CardTitle>{product ? t('editProduct') : t('addNewProduct')}</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Product Name</Label>
+              <Label htmlFor="name">{t('productName')}</Label>
               <Input id="name" {...register('name')} />
               {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
             <div>
-              <Label htmlFor="barcode">Barcode</Label>
+              <Label htmlFor="barcode">{t('barcode')}</Label>
               <div className="flex gap-2">
                 <Input id="barcode" {...register('barcode')} />
-                <Button type="button" variant="outline" onClick={handleBarcodeScan} aria-label="Scan Barcode">
+                <Button type="button" variant="outline" onClick={handleBarcodeScan} aria-label={t('scanBarcode')}>
                   <ScanLine className="h-4 w-4" />
                 </Button>
               </div>
@@ -134,20 +142,20 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
           </div>
           
           <div>
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">{t('descriptionOptional')}</Label>
             <Textarea id="description" {...register('description')} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="category">Category (Optional)</Label>
+              <Label htmlFor="category">{t('categoryOptional')}</Label>
               <Input id="category" {...register('category')} />
             </div>
             <div>
-              <Label htmlFor="supplierId">Supplier (Optional)</Label>
+              <Label htmlFor="supplierId">{t('supplierOptional')}</Label>
               <Select onValueChange={(value) => setValue('supplierId', value)} defaultValue={product?.supplierId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a supplier" />
+                  <SelectValue placeholder={t('selectASupplier')} />
                 </SelectTrigger>
                 <SelectContent>
                   {suppliers.map(s => (
@@ -160,12 +168,12 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="purchasePrice">Purchase Price</Label>
+              <Label htmlFor="purchasePrice">{t('purchasePrice')} ({currency})</Label>
               <Input id="purchasePrice" type="number" step="0.01" {...register('purchasePrice')} />
               {errors.purchasePrice && <p className="text-sm text-destructive">{errors.purchasePrice.message}</p>}
             </div>
             <div>
-              <Label htmlFor="sellingPrice">Selling Price</Label>
+              <Label htmlFor="sellingPrice">{t('sellingPrice')} ({currency})</Label>
               <Input id="sellingPrice" type="number" step="0.01" {...register('sellingPrice')} />
               {errors.sellingPrice && <p className="text-sm text-destructive">{errors.sellingPrice.message}</p>}
             </div>
@@ -173,12 +181,12 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="unit">Unit (e.g., box, strip)</Label>
+              <Label htmlFor="unit">{t('unitEgBox')}</Label>
               <Input id="unit" {...register('unit')} />
               {errors.unit && <p className="text-sm text-destructive">{errors.unit.message}</p>}
             </div>
             <div>
-              <Label htmlFor="quantityInStock">Quantity In Stock</Label>
+              <Label htmlFor="quantityInStock">{t('quantityInStock')}</Label>
               <Input id="quantityInStock" type="number" {...register('quantityInStock')} />
               {errors.quantityInStock && <p className="text-sm text-destructive">{errors.quantityInStock.message}</p>}
             </div>
@@ -186,7 +194,7 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="expiryDate">Expiry Date</Label>
+              <Label htmlFor="expiryDate">{t('expiryDate')}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -197,7 +205,7 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {expiryDate ? format(expiryDate, "PPP") : <span>Pick a date</span>}
+                    {expiryDate ? format(expiryDate, "PPP", { locale: calendarLocale }) : <span>{t('pickADate')}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -206,13 +214,14 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
                     selected={expiryDate}
                     onSelect={(date) => date && setValue('expiryDate', date)}
                     initialFocus
+                    locale={calendarLocale}
                   />
                 </PopoverContent>
               </Popover>
               {errors.expiryDate && <p className="text-sm text-destructive">{errors.expiryDate.message}</p>}
             </div>
             <div>
-              <Label htmlFor="lowStockThreshold">Low Stock Threshold (Optional)</Label>
+              <Label htmlFor="lowStockThreshold">{t('lowStockThresholdOptional')}</Label>
               <Input id="lowStockThreshold" type="number" {...register('lowStockThreshold')} />
               {errors.lowStockThreshold && <p className="text-sm text-destructive">{errors.lowStockThreshold.message}</p>}
             </div>
@@ -220,8 +229,8 @@ export function ProductForm({ product, suppliers }: ProductFormProps) {
 
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-          <Button type="submit">{product ? 'Update Product' : 'Add Product'}</Button>
+          <Button type="button" variant="outline" onClick={() => router.back()}>{t('cancel')}</Button>
+          <Button type="submit">{product ? t('updateProduct') : t('addProduct')}</Button>
         </CardFooter>
       </form>
     </Card>

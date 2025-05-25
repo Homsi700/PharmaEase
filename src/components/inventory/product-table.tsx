@@ -17,6 +17,8 @@ import Link from 'next/link';
 import { deleteProductAction } from '@/app/(dashboard)/inventory/actions';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface ProductTableProps {
   products: Product[];
@@ -25,29 +27,31 @@ interface ProductTableProps {
 export function ProductTable({ products }: ProductTableProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const { t } = useAppTranslation();
+  const { formatPrice } = useCurrency();
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
+    if (confirm(t('confirmDeleteProduct'))) {
       const result = await deleteProductAction(id);
       if (result.success) {
-        toast({ title: "Success", description: "Product deleted successfully." });
-        router.refresh(); // Refresh data
+        toast({ title: t("success"), description: t("productDeletedSuccessfully") });
+        router.refresh(); 
       } else {
-        toast({ variant: "destructive", title: "Error", description: result.error });
+        toast({ variant: "destructive", title: t("error"), description: result.error || t("failedToDeleteProduct") });
       }
     }
   };
 
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString();
+      return new Date(dateString).toLocaleDateString(t('locale') === 'ar' ? 'ar-EG' : 'en-US'); // Use locale for date formatting
     } catch (e) {
       return "Invalid Date";
     }
   };
 
   const isLowStock = (product: Product) => {
-    const threshold = product.lowStockThreshold || 10; // Default low stock threshold
+    const threshold = product.lowStockThreshold || 10;
     return product.quantityInStock < threshold;
   }
 
@@ -64,20 +68,20 @@ export function ProductTable({ products }: ProductTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Barcode</TableHead>
-            <TableHead className="text-right">Selling Price</TableHead>
-            <TableHead className="text-right">Stock</TableHead>
-            <TableHead>Expiry Date</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t('name')}</TableHead>
+            <TableHead>{t('barcode')}</TableHead>
+            <TableHead className="text-right">{t('sellingPrice')}</TableHead>
+            <TableHead className="text-right">{t('stock')}</TableHead>
+            <TableHead>{t('expiryDate')}</TableHead>
+            <TableHead>{t('status')}</TableHead>
+            <TableHead className="text-right">{t('actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {products.length === 0 && (
             <TableRow>
               <TableCell colSpan={7} className="text-center h-24">
-                No products found.
+                {t('noProductsFound')}
               </TableCell>
             </TableRow>
           )}
@@ -85,16 +89,16 @@ export function ProductTable({ products }: ProductTableProps) {
             <TableRow key={product.id}>
               <TableCell className="font-medium">{product.name}</TableCell>
               <TableCell>{product.barcode}</TableCell>
-              <TableCell className="text-right">${product.sellingPrice.toFixed(2)}</TableCell>
+              <TableCell className="text-right">{formatPrice(product.sellingPrice)}</TableCell>
               <TableCell className="text-right">{product.quantityInStock}</TableCell>
               <TableCell>{formatDate(product.expiryDate)}</TableCell>
               <TableCell>
                 {isExpired(product.expiryDate) ? (
-                  <Badge variant="destructive">Expired</Badge>
+                  <Badge variant="destructive">{t('expired')}</Badge>
                 ) : isLowStock(product) ? (
-                  <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600 text-white">Low Stock</Badge>
+                  <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600 text-white">{t('lowStock')}</Badge>
                 ) : (
-                  <Badge variant="secondary" className="bg-green-500 hover:bg-green-600 text-white">In Stock</Badge>
+                  <Badge variant="secondary" className="bg-green-500 hover:bg-green-600 text-white">{t('inStock')}</Badge>
                 )}
               </TableCell>
               <TableCell className="text-right">
@@ -109,12 +113,12 @@ export function ProductTable({ products }: ProductTableProps) {
                     <Link href={`/inventory/edit/${product.id}`} passHref>
                       <DropdownMenuItem>
                         <Edit className="mr-2 h-4 w-4" />
-                        Edit
+                        {t('edit')}
                       </DropdownMenuItem>
                     </Link>
                     <DropdownMenuItem onClick={() => handleDelete(product.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                       <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
+                      {t('delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

@@ -81,6 +81,11 @@ export const getProductById = (productId: string): Product | undefined => {
   const products = getProducts();
   return products.find(p => p.id === productId);
 };
+export const getProductByBarcode = (barcode: string): Product | undefined => {
+  const products = getProducts();
+  return products.find(p => p.barcode === barcode);
+};
+
 
 // Sales functions
 export const getSales = (): Sale[] => readData<Sale>(salesFilePath);
@@ -92,8 +97,8 @@ export const addSale = (sale: Sale): Sale => {
   sale.items.forEach(item => {
     const product = getProductById(item.productId);
     if (product) {
-      product.quantityInStock -= item.quantitySold;
-      updateProduct(product);
+      const newQuantity = product.quantityInStock - item.quantitySold;
+      updateProduct({ ...product, quantityInStock: newQuantity >= 0 ? newQuantity : 0 });
     }
   });
   return sale;
