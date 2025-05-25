@@ -139,17 +139,6 @@
   "saleCompleted": "Sale Completed",
   "invoiceNumber": "Invoice Number",
   "failedToCompleteSale": "Failed to complete sale.",
-  "loading": "Loading...",
-  "loginToPharmaEase": "Login to PharmaEase",
-  "loginPageDescription": "Enter your credentials to access your dashboard.",
-  "email": "Email",
-  "password": "Password",
-  "rememberMe": "Remember me",
-  "forgotPassword": "Forgot password?",
-  "signIn": "Sign In",
-  "noAccountYet": "Don't have an account yet?",
-  "contactSupport": "Contact Support",
-  "allRightsReserved": "All rights reserved.",
-  "loginAttemptMessage": "Login functionality not implemented yet."
+  "loading": "Loading..."
 }
     
