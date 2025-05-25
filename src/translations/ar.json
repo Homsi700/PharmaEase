@@ -1,3 +1,4 @@
+
 {
   "pharmaEase": "صيدليتي",
   "dashboard": "لوحة التحكم",
@@ -54,6 +55,8 @@
   "expired": "منتهي الصلاحية",
   "lowStock": "مخزون منخفض",
   "inStock": "متوفر",
+  "soonToExpire": "قريب الانتهاء",
+  "ok": "جيد",
   "edit": "تعديل",
   "delete": "حذف",
   "somethingWentWrong": "حدث خطأ ما!",
@@ -106,6 +109,7 @@
   "errorGeneratingSuggestion": "فشل إنشاء الاقتراح: {{errorMessage}}",
   "quickInvoicePageTitle": "فاتورة سريعة عبر الباركود",
   "quickInvoicePageDescription": "امسح باركود المنتجات لإنشاء فاتورة بيع جديدة بسرعة.",
+  "quickInvoiceExternalScannerDescription": "استخدم قارئ الباركود الخارجي لمسح المنتجات. سيتم التركيز تلقائياً على حقل الإدخال.",
   "scanProductBarcode": "مسح باركود المنتج",
   "productDetails": "تفاصيل المنتج",
   "quantity": "الكمية",
@@ -114,7 +118,14 @@
   "addItem": "إضافة عنصر",
   "completeSale": "إتمام البيع",
   "noProductFoundWithBarcode": "لم يتم العثور على منتج بهذا الباركود.",
-  "productAddedToInvoice": "تمت إضافة المنتج إلى الفاتورة.",
+  "productAddedToInvoice": "تمت إضافة المنتج '{{productName}}' إلى الفاتورة.",
+  "productQuantityIncreased": "تمت زيادة كمية المنتج '{{productName}}'.",
+  "productNotFound": "المنتج غير موجود في المخزون.",
+  "productOutOfStock": "المنتج '{{productName}}' نفذ من المخزون.",
+  "maxStockReached": "وصلت إلى أقصى كمية متوفرة من المنتج '{{productName}}'.",
+  "manualBarcodeEntry": "إدخال الباركود يدويًا",
+  "barcodeInputPlaceholder": "أدخل الباركود أو امسحه هنا...",
+  "barcodeScannerInput": "حقل إدخال قارئ الباركود",
   "cameraAccessRequired": "مطلوب الوصول إلى الكاميرا",
   "allowCameraAccess": "يرجى السماح بالوصول إلى الكاميرا لاستخدام هذه الميزة.",
   "enableCameraPermissions": "يرجى تمكين أذونات الكاميرا في إعدادات المتصفح الخاص بك لاستخدام هذا التطبيق.",
@@ -127,5 +138,8 @@
   "card": "بطاقة",
   "saleCompleted": "اكتمل البيع",
   "invoiceNumber": "رقم الفاتورة",
-  "failedToCompleteSale": "فشل إتمام البيع."
+  "failedToCompleteSale": "فشل إتمام البيع.",
+  "loading": "جاري التحميل..."
 }
+
+    

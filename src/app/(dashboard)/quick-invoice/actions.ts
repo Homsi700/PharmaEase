@@ -1,8 +1,9 @@
+
 "use server";
 
 import { revalidatePath } from 'next/cache';
-import { getProductByBarcode as getProductByBarcodeFromDb, addSale } from '@/lib/data-service';
-import type { Product, Sale, SaleItem } from '@/types';
+import { getProductByBarcode as getProductByBarcodeFromDb, addSale, addTransaction } from '@/lib/data-service';
+import type { Product, Sale, SaleItem, Transaction } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 
@@ -11,7 +12,7 @@ const BarcodeSchema = z.string().min(1, "Barcode is required");
 export async function getProductByBarcodeAction(barcode: string): Promise<Product | null> {
   try {
     BarcodeSchema.parse(barcode);
-    const product = getProductByBarcodeFromDb(barcode); // Assuming data-service has this
+    const product = getProductByBarcodeFromDb(barcode);
     return product || null;
   } catch (error) {
     console.error("Error fetching product by barcode:", error);
@@ -35,28 +36,45 @@ export async function createQuickSaleAction(
   items: SaleItem[],
   totalAmount: number,
   paymentMethod: string
-): Promise<{ success: boolean; saleId?: string; error?: string }> {
+): Promise<{ success: boolean; saleId?: string; invoiceNumber?: string; error?: string }> {
   try {
     const validatedData = CreateSaleSchema.parse({ items, totalAmount, paymentMethod });
+    const currentDate = new Date().toISOString();
+    const invoiceNum = `INV-${Date.now()}`;
 
     const newSale: Sale = {
       id: uuidv4(),
-      saleDate: new Date().toISOString(),
+      saleDate: currentDate,
       items: validatedData.items,
       totalAmount: validatedData.totalAmount,
       paymentMethod: validatedData.paymentMethod,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      invoiceNumber: `INV-${Date.now()}` // Simple invoice number
+      createdAt: currentDate,
+      updatedAt: currentDate,
+      invoiceNumber: invoiceNum 
     };
 
     const saleResult = addSale(newSale); // addSale in data-service handles stock update
     
+    if (saleResult.id) {
+      const transaction: Transaction = {
+        id: uuidv4(),
+        type: 'revenue',
+        date: currentDate,
+        amount: validatedData.totalAmount,
+        description: `Sale from Quick Invoice - ${invoiceNum}`,
+        relatedSaleId: saleResult.id,
+        createdAt: currentDate,
+        updatedAt: currentDate,
+      };
+      addTransaction(transaction);
+    }
+    
     revalidatePath('/sales');
-    revalidatePath('/inventory'); // Revalidate inventory due to stock changes
+    revalidatePath('/inventory'); 
     revalidatePath('/quick-invoice');
+    revalidatePath('/reports'); // Reports might use transaction data
 
-    return { success: true, saleId: saleResult.id };
+    return { success: true, saleId: saleResult.id, invoiceNumber: invoiceNum };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.errors.map(e => e.message).join(', ') };
@@ -65,3 +83,5 @@ export async function createQuickSaleAction(
     return { success: false, error: 'Failed to create sale.' };
   }
 }
+
+    

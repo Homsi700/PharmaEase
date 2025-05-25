@@ -1,3 +1,4 @@
+
 {
   "pharmaEase": "PharmaEase",
   "dashboard": "Dashboard",
@@ -54,6 +55,8 @@
   "expired": "Expired",
   "lowStock": "Low Stock",
   "inStock": "In Stock",
+  "soonToExpire": "Soon to Expire",
+  "ok": "OK",
   "edit": "Edit",
   "delete": "Delete",
   "somethingWentWrong": "Something went wrong!",
@@ -106,6 +109,7 @@
   "errorGeneratingSuggestion": "Failed to generate suggestion: {{errorMessage}}",
   "quickInvoicePageTitle": "Quick Invoice via Barcode",
   "quickInvoicePageDescription": "Scan product barcodes to quickly create a new sales invoice.",
+  "quickInvoiceExternalScannerDescription": "Use an external barcode scanner. The input field will be focused automatically.",
   "scanProductBarcode": "Scan Product Barcode",
   "productDetails": "Product Details",
   "quantity": "Quantity",
@@ -114,7 +118,14 @@
   "addItem": "Add Item",
   "completeSale": "Complete Sale",
   "noProductFoundWithBarcode": "No product found with this barcode.",
-  "productAddedToInvoice": "Product added to invoice.",
+  "productAddedToInvoice": "Product '{{productName}}' added to invoice.",
+  "productQuantityIncreased": "Product '{{productName}}' quantity increased.",
+  "productNotFound": "Product not found in inventory.",
+  "productOutOfStock": "Product '{{productName}}' is out of stock.",
+  "maxStockReached": "Reached maximum available stock for product '{{productName}}'.",
+  "manualBarcodeEntry": "Manual Barcode Entry",
+  "barcodeInputPlaceholder": "Enter or scan barcode here...",
+  "barcodeScannerInput": "Barcode scanner input field",
   "cameraAccessRequired": "Camera Access Required",
   "allowCameraAccess": "Please allow camera access to use this feature.",
   "enableCameraPermissions": "Please enable camera permissions in your browser settings to use this app.",
@@ -127,5 +138,8 @@
   "card": "Card",
   "saleCompleted": "Sale Completed",
   "invoiceNumber": "Invoice Number",
-  "failedToCompleteSale": "Failed to complete sale."
+  "failedToCompleteSale": "Failed to complete sale.",
+  "loading": "Loading..."
 }
+
+    

@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Product } from '@/types';
@@ -44,24 +45,41 @@ export function ProductTable({ products }: ProductTableProps) {
 
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString(t('locale') === 'ar' ? 'ar-EG' : 'en-US'); // Use locale for date formatting
+      return new Date(dateString).toLocaleDateString(t('locale') === 'ar' ? 'ar-EG' : 'en-US');
     } catch (e) {
       return "Invalid Date";
     }
   };
 
   const isLowStock = (product: Product) => {
-    const threshold = product.lowStockThreshold || 10;
+    const threshold = product.lowStockThreshold || 10; // Default threshold if not set
     return product.quantityInStock < threshold;
-  }
+  };
 
   const isExpired = (expiryDate: string) => {
     try {
-      return new Date(expiryDate) < new Date();
+      const exp = new Date(expiryDate);
+      const today = new Date();
+      today.setHours(0,0,0,0); // Compare dates only
+      return exp < today;
     } catch (e) {
       return false;
     }
-  }
+  };
+
+  const isSoonToExpire = (expiryDate: string, days: number = 30): boolean => {
+    if (!expiryDate) return false;
+    try {
+      const exp = new Date(expiryDate);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const soonDate = new Date(today);
+      soonDate.setDate(soonDate.getDate() + days);
+      return exp < soonDate && exp >= today; // Expiring soon but not yet expired
+    } catch (e) {
+      return false;
+    }
+  };
 
   return (
     <div className="rounded-lg border shadow-sm">
@@ -95,6 +113,8 @@ export function ProductTable({ products }: ProductTableProps) {
               <TableCell>
                 {isExpired(product.expiryDate) ? (
                   <Badge variant="destructive">{t('expired')}</Badge>
+                ) : isSoonToExpire(product.expiryDate) ? (
+                  <Badge variant="destructive" className="bg-orange-500 hover:bg-orange-600 text-white">{t('soonToExpire')}</Badge>
                 ) : isLowStock(product) ? (
                   <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600 text-white">{t('lowStock')}</Badge>
                 ) : (
@@ -130,3 +150,5 @@ export function ProductTable({ products }: ProductTableProps) {
     </div>
   );
 }
+
+    
