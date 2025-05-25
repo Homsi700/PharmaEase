@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Loader2, Wand2 } from 'lucide-react';
 import { generateSuggestedOrder, type GenerateSuggestedOrderInput, type GenerateSuggestedOrderOutput } from '@/ai/flows/ai-driven-stock-ordering';
 import { useToast } from "@/hooks/use-toast";
-import { getProducts, getSales } from '@/lib/data-service'; 
+import { getSmartOrderPrefillDataAction, type SmartOrderPrefillData } from './actions'; // Updated import
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const getCurrentDate = () => new Date().toISOString().split('T')[0];
@@ -38,26 +38,35 @@ export default function SmartOrderPage() {
   const [expirationDates, setExpirationDates] = useState('');
   const [suggestedOrder, setSuggestedOrder] = useState<GenerateSuggestedOrderOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPrefilling, setIsPrefilling] = useState(false);
   const { toast } = useToast();
 
-  const handlePrefillData = () => {
-    const currentProducts = getProducts();
-    const currentSales = getSales();
+  const handlePrefillData = async () => {
+    setIsPrefilling(true);
+    try {
+      const { products: currentProducts, sales: currentSales } = await getSmartOrderPrefillDataAction();
 
-    const stock = currentProducts.map(p => ({ productId: p.id, name: p.name, quantityInStock: p.quantityInStock }));
-    const expirations = currentProducts.map(p => ({ productId: p.id, name: p.name, expiryDate: p.expiryDate }));
-    
-    const sales = currentSales.flatMap(s => s.items.map(item => ({
-      productId: item.productId,
-      quantitySold: item.quantitySold,
-      dateOfSale: new Date(s.saleDate).toISOString().split('T')[0]
-    })));
-    
-    setSalesData(sales.length > 0 ? JSON.stringify(sales, null, 2) : exampleSalesData);
-    setStockLevels(stock.length > 0 ? JSON.stringify(stock, null, 2) : exampleStockLevels);
-    setExpirationDates(expirations.length > 0 ? JSON.stringify(expirations, null, 2) : exampleExpirationDates);
+      const stock = currentProducts.map(p => ({ productId: p.id, name: p.name, quantityInStock: p.quantityInStock }));
+      const expirations = currentProducts.map(p => ({ productId: p.id, name: p.name, expiryDate: p.expiryDate }));
+      
+      const sales = currentSales.flatMap(s => s.items.map(item => ({
+        productId: item.productId,
+        quantitySold: item.quantitySold,
+        dateOfSale: new Date(s.saleDate).toISOString().split('T')[0]
+      })));
+      
+      setSalesData(sales.length > 0 ? JSON.stringify(sales, null, 2) : exampleSalesData);
+      setStockLevels(stock.length > 0 ? JSON.stringify(stock, null, 2) : exampleStockLevels);
+      setExpirationDates(expirations.length > 0 ? JSON.stringify(expirations, null, 2) : exampleExpirationDates);
 
-    toast({ title: t("dataPrefilled"), description: t("dataPrefilledDescription") });
+      toast({ title: t("dataPrefilled"), description: t("dataPrefilledDescription") });
+    } catch (error) {
+      console.error("Error prefilling data:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      toast({ variant: "destructive", title: t("error"), description: t("errorPrefillingData", {errorMessage}) });
+    } finally {
+      setIsPrefilling(false);
+    }
   };
 
 
@@ -100,7 +109,8 @@ export default function SmartOrderPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Button onClick={handlePrefillData} variant="outline" size="sm" className="mb-2">
+              <Button onClick={handlePrefillData} variant="outline" size="sm" className="mb-2" disabled={isPrefilling}>
+                {isPrefilling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {t('prefillData')}
               </Button>
             </div>
@@ -112,6 +122,7 @@ export default function SmartOrderPage() {
                 onChange={(e) => setSalesData(e.target.value)} 
                 rows={6}
                 placeholder={exampleSalesData}
+                disabled={isLoading || isPrefilling}
               />
             </div>
             <div>
@@ -122,6 +133,7 @@ export default function SmartOrderPage() {
                 onChange={(e) => setStockLevels(e.target.value)} 
                 rows={6}
                 placeholder={exampleStockLevels}
+                disabled={isLoading || isPrefilling}
               />
             </div>
             <div>
@@ -132,11 +144,12 @@ export default function SmartOrderPage() {
                 onChange={(e) => setExpirationDates(e.target.value)} 
                 rows={6}
                 placeholder={exampleExpirationDates}
+                disabled={isLoading || isPrefilling}
               />
             </div>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleSubmit} disabled={isLoading} className="w-full">
+            <Button onClick={handleSubmit} disabled={isLoading || isPrefilling} className="w-full">
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

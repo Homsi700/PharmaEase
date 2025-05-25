@@ -2,5 +2,6 @@
 import { redirect } from 'next/navigation';
 
 export default function RootPage() {
-  redirect('/inventory'); // Or your preferred default dashboard page
+  // Redirect to the new main dashboard page
+  redirect('/dashboard'); 
 }

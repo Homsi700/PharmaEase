@@ -9,8 +9,10 @@ export default function InventoryPage() {
   const products: Product[] = getProducts();
 
   return (
+    // TranslationsWrapper is kept for consistency, though InventoryPageContent uses the hook directly
     <TranslationsWrapper>
       <InventoryPageContent products={products} />
     </TranslationsWrapper>
   );
 }
+

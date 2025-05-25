@@ -1,18 +1,31 @@
+"use client";
 
-:: This script is being removed as it cannot reliably automate the creation
-:: of a desktop executable from a Next.js web application in the manner requested.
-:: Creating a true desktop application requires integrating with frameworks
-:: like Electron or Tauri, which is a more involved development process.
+import Link from 'next/link';
+import { PageHeader } from '@/components/page-header';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
+import { ProductTable } from '@/components/inventory/product-table';
+import type { Product } from '@/types';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
-ECHO OFF
-ECHO This script (start_desktop_app.bat) is deprecated and will be removed.
-ECHO.
-ECHO To run PharmaEase as a web application, please use start_web_app.bat
-ECHO after running install_dependencies.bat.
-ECHO.
-ECHO For creating a desktop version, specialized tools like Electron or Tauri
-ECHO need to be integrated into the project's build system, which is
-ECHO beyond the scope of this simple batch file.
-ECHO.
-PAUSE
-    
+interface InventoryPageContentProps {
+  products: Product[];
+}
+
+export function InventoryPageContent({ products }: InventoryPageContentProps) {
+  const { t } = useAppTranslation();
+
+  return (
+    <div className="space-y-6">
+      <PageHeader titleKey="inventoryManagement" descriptionKey="inventoryManagementDescription">
+        <Link href="/inventory/new" passHref>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            {t('addProduct')}
+          </Button>
+        </Link>
+      </PageHeader>
+      <ProductTable products={products} />
+    </div>
+  );
+}
