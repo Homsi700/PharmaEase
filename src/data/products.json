@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": "7105f9f9-359a-46c0-9132-5d9e815e0d1b",
+    "name": "بنادول احمر ",
+    "barcode": "08906045944144",
+    "description": "حبوب",
+    "category": "",
+    "purchasePrice": 1500,
+    "sellingPrice": 1700,
+    "unit": "unit",
+    "quantityInStock": 100,
+    "expiryDate": "2025-05-26T13:23:35.678Z",
+    "lowStockThreshold": 10,
+    "createdAt": "2025-05-26T13:24:58.117Z",
+    "updatedAt": "2025-05-26T13:24:58.117Z"
+  }
+]
