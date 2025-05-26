@@ -25,12 +25,11 @@ export function LoginPageContent() {
     setIsLoading(true);
     try {
       const result = await loginAction(username, password);
-      if (result.success) {
-        toast({
+      if (result.success) {        toast({
           title: t('loginSuccessTitle'),
           description: t('loginSuccessDescription'),
         });
-        router.push('/dashboard'); // Redirect to dashboard or desired page
+        router.push('/inventory'); // Redirect to inventory page
       } else {
         toast({
           variant: 'destructive',

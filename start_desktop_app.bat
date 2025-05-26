@@ -1,14 +1,13 @@
-"use client";
+@echo off
+echo Starting PharmaEase Desktop App...
+echo.
+echo This will start both the Next.js server and Electron app.
+echo Please wait for the application to start...
+echo.
 
-import Link from 'next/link';
-import { PageHeader } from '@/components/page-header';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { ProductTable } from '@/components/inventory/product-table';
-import type { Product } from '@/types';
-import { useAppTranslation } from '@/hooks/useAppTranslation';
-
-interface InventoryPageContentProps {
+REM Start Next.js and Electron
+npm run desktop-start
+pause
   products: Product[];
 }
 
