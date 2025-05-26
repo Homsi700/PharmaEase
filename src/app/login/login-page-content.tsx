@@ -25,7 +25,8 @@ export function LoginPageContent() {
     setIsLoading(true);
     try {
       const result = await loginAction(username, password);
-      if (result.success) {        toast({
+      if (result.success) {        
+        toast({
           title: t('loginSuccessTitle'),
           description: t('loginSuccessDescription'),
         });
@@ -34,7 +35,7 @@ export function LoginPageContent() {
         toast({
           variant: 'destructive',
           title: t('loginFailedTitle'),
-          description: result.error || t('loginFailedDescriptionGeneric'),
+          description: result.error ? t(result.error) : t('loginFailedDescriptionGeneric'),
         });
       }
     } catch (error) {
